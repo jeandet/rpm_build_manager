@@ -1,0 +1,25 @@
+global:
+    destdir: /VOL2/Repositories/Fedora
+    log:
+        path: /home/makerpm/buildlog
+    gpg_config: /home/makerpm/.rpm_gpg.yml
+
+gcc6.5:
+    git:
+        url: https://github.com/jeandet/gcc-rpms
+    path: 6.5.0
+    spec: gcc-6.5.0.spec
+    rpmsign: true
+    chroots:
+        - fedora-28-x86_64
+        - fedora-29-x86_64
+
+gcc7.1:
+    git:
+        url: https://github.com/jeandet/gcc-rpms
+    path: 7.1.0
+    spec: gcc-7.1.0.spec
+    rpmsign: true
+    chroots:
+        - fedora-28-x86_64
+        - fedora-29-x86_64
