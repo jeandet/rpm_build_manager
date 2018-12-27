@@ -54,14 +54,12 @@ def build_package(srpm: str, chroot: str, rpmsign: bool, gpg_config: dict, destd
     repo = f'{destdir}/{version}/{arch}/'
     srpm_repo = f'{destdir}/{version}/SRPMS/'
     expected_rpm_name=srpm.split('/')[-1].replace('.src.',f'.{arch}.')
+    gpg_key = str(gpg_config['key'])
+    gpg_pass = str(gpg_config['pass'])
     if os.path.exists(f'''{repo}/{expected_rpm_name}'''):
         print(colored(f'[SKIP] {expected_rpm_name} already built','green'))
         return
     r = build_with_mock(srpm, chroot)
-    invoke('cp', [rpm, repo])
-    gpg_key = str(gpg_config['key'])
-    gpg_pass = str(gpg_config['pass'])
-    print(f'gpg_key:{gpg_key}   gpg_pass:{gpg_pass}')
     rpm_list = glob.glob(f'/var/lib/mock/fedora-{version}-{arch}/result/*.rpm')
     if rpmsign:
         sign_rpm(rpm_list, gpg_key, gpg_pass)
