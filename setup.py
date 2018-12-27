@@ -47,6 +47,7 @@ setup(
     url='https://github.com/jeandet/rpm_build_manager',
     version='0.1.0',
     zip_safe=False,
+    scripts=['rpm-sign'],
     entry_points={
             'console_scripts': [
                 'rpm_build_manager = rpm_build_manager:main',

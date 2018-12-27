@@ -27,7 +27,6 @@ def build_with_mock(srpm: str, chroot_name: str)-> object:
 
 def sign_rpm(rpm_files: str, gpg_key: str, passphrase: str) -> None:
     rpm_files = listify(rpm_files)
-    invoke('/usr/libexec/gpg-preset-passphrase', ['--passphrase', passphrase, '--preset', gpg_key])
     for rpm_file in rpm_files:
         print(colored('[SIGNING]', 'green'), f' {rpm_file}')
-        invoke('rpmsign', ['--resign', rpm_file])
+        invoke('rpm-sign', [passphrase, rpm_file])
