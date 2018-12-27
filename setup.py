@@ -40,11 +40,16 @@ setup(
     include_package_data=True,
     keywords='rpm_build_manager',
     name='rpm_build_manager',
-    packages=find_packages(include=['rpm_build_manager']),
+    packages=find_packages(),
     setup_requires=setup_requirements,
     test_suite='tests',
     tests_require=test_requirements,
     url='https://github.com/jeandet/rpm_build_manager',
     version='0.1.0',
     zip_safe=False,
+    entry_points={
+            'console_scripts': [
+                'rpm_build_manager = rpm_build_manager:main',
+            ],
+        }
 )
