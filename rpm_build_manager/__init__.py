@@ -54,7 +54,6 @@ def clone_repo(url, dest):
 
 
 def build_package(srpm: str, chroot: str, rpmsign: bool, gpg_config: dict, destdir):
-    r=build_with_mock(srpm, chroot)
     version, arch = chroot.split('-')[1:]
     repo = f'{destdir}/{version}/{arch}/'
     srpm_repo = f'{destdir}/{version}/SRPMS/'
@@ -62,6 +61,7 @@ def build_package(srpm: str, chroot: str, rpmsign: bool, gpg_config: dict, destd
     if os.path.exists(f'''{repo}/{expected_rpm_name}'''):
         print(colored(f'[SKIP] {expected_rpm_name} already built','green'))
         return
+    r = build_with_mock(srpm, chroot)
     invoke('cp', [rpm, repo])
     gpg_key = str(gpg_config['key'])
     gpg_pass = str(gpg_config['pass'])

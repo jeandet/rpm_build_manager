@@ -21,6 +21,7 @@ def make_srpm(spec_file: str) -> str:
 
 
 def build_with_mock(srpm: str, chroot_name: str)-> object:
+    print(colored('[MOCKBUILD]', 'green'), f' {srpm} for {chroot_name}')
     return invoke('mock', ['-r', chroot_name, 'rebuild', srpm])
 
 
