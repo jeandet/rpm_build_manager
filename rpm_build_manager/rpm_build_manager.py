@@ -22,7 +22,7 @@ import subprocess
 from termcolor import colored
 from os.path import expanduser
 from common.utils import invoke
-from common.rpmbuild import make_srpm, build_with_mock, sign_rpm
+from common.rpmbuild import make_srpm, build_with_mock, sign_rpm, update_repo, create_repo
 import yaml
 from multiprocessing import Process
 
@@ -56,17 +56,31 @@ def clone_repo(url, dest):
 def build_package(srpm: str, chroot: str, rpmsign: bool, gpg_config: dict, destdir):
     r=build_with_mock(srpm, chroot)
     version, arch = chroot.split('-')[1:]
+    repo = f'{destdir}/{version}/{arch}/'
+    srpm_repo = f'{destdir}/{version}/SRPMS/'
+    expected_rpm_name=srpm.split('/')[-1].replace('.src.',f'.{arch}.')
+    if os.path.exists(f'''{repo}/{expected_rpm_name}'''):
+        print(colored(f'[SKIP] {expected_rpm_name} already built','green'))
+        return
+    invoke('cp', [rpm, repo])
     gpg_key = str(gpg_config['key'])
     gpg_pass = str(gpg_config['pass'])
     print(f'gpg_key:{gpg_key}   gpg_pass:{gpg_pass}')
     rpm_list = glob.glob(f'/var/lib/mock/fedora-{version}-{arch}/result/*.rpm')
     if rpmsign:
-        for rpm in rpm_list:
-            sign_rpm(rpm, gpg_key, gpg_pass)
-    invoke('mkdir', ['-p', f'{destdir}/{version}/{arch}'])
+        sign_rpm(rpm_list, gpg_key, gpg_pass)
+        sign_rpm(srpm, gpg_key, gpg_pass)
+    if not os.path.exists(repo):
+        create_repo(repo)
     for rpm in rpm_list:
-        print(f"will copy {rpm} into {destdir}/{version}/{arch}/")
-        invoke('cp',[rpm, f'{destdir}/{version}/{arch}/'])
+        print(colored('[COPYING]', 'green'), f' {rpm} to {repo}')
+        invoke('cp',[rpm, repo])
+    update_repo(repo)
+    if not os.path.exists(repo):
+        create_repo(repo)
+    invoke('cp',[srpm, srpm_repo])
+    update_repo(srpm_repo)
+
 
 
 def main():
