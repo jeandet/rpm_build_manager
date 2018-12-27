@@ -12,13 +12,9 @@ __maintainer__ = "Alexis Jeandet"
 __email__ = "alexis.jeandet@member.fsf.org"
 __status__ = "Development"
 
-import traceback
 import os
 import argparse
 import glob
-import pathlib
-import datetime
-import subprocess
 from termcolor import colored
 from os.path import expanduser
 from .common.utils import invoke
@@ -32,7 +28,7 @@ home = expanduser("~")
 
 
 parser = argparse.ArgumentParser()
-parser.add_argument("-f", "--config-file", help="config file", default=home+'/.rpm_build_manager.conf')
+parser.add_argument("-f", "--config-file", help="config file", default=home+'/.rpm_build_manager.yml')
 parser.add_argument("--list-packages", help="lists packages", action="store_true")
 parser.add_argument("--sim", help="Simulation mode, just print commands", action="store_true")
 args = parser.parse_args()

@@ -1,5 +1,5 @@
 from .utils import invoke, listify
-
+from termcolor import colored
 
 def update_repo(repo: str) -> None:
     print(colored('[UPDATEREPO]', 'green'), f' {repo}')
