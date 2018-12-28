@@ -18,7 +18,7 @@ import glob
 from termcolor import colored
 from os.path import expanduser
 from .common.utils import invoke
-from .common.rpmbuild import make_srpm, build_with_mock, sign_rpm, update_repo, create_repo
+from .common.rpmbuild import make_srpm, build_with_mock, sign_rpm, update_repo, create_repo, guess_distrib_short_name
 import yaml
 from multiprocessing import Process
 
@@ -50,10 +50,11 @@ def clone_repo(url, dest):
 
 
 def build_package(srpm: str, chroot: str, rpmsign: bool, gpg_config: dict, destdir):
-    version, arch = chroot.split('-')[1:]
+    dist, version, arch = chroot.split('-')
+    short_name = guess_distrib_short_name(dist)
     repo = f'{destdir}/{version}/{arch}/'
     srpm_repo = f'{destdir}/{version}/SRPMS/'
-    expected_rpm_name=srpm.split('/')[-1].replace('.src.',f'.{arch}.')
+    expected_rpm_name='.'.join(srpm.split('/')[-1].split('.')[:-3])+f'.{short_name}{version}.{arch}.rpm'
     gpg_key = str(gpg_config['key'])
     gpg_pass = str(gpg_config['pass'])
     if os.path.exists(f'''{repo}/{expected_rpm_name}'''):

@@ -1,6 +1,17 @@
 from .utils import invoke, listify
 from termcolor import colored
 
+
+def guess_distrib_short_name(name):
+    list = {
+        "fedora":"fc",
+        "centos":"el",
+        "epel":"el"
+    }
+
+    return list.get(name, "")
+
+
 def update_repo(repo: str) -> None:
     print(colored('[UPDATEREPO]', 'green'), f' {repo}')
     p = invoke('createrepo', ['--update', '--deltas', repo])
