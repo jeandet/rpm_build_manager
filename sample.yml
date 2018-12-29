@@ -20,6 +20,8 @@ gcc7.1:
     path: 7.1.0
     spec: gcc-7.1.0.spec
     rpmsign: true
+    install:
+        - https://hephaistos.lpp.polytechnique.fr/repositories/Fedora/hephaistos-2.0.0-1.fc29.x86_64.rpm
     chroots:
         - fedora-28-x86_64
         - fedora-29-x86_64

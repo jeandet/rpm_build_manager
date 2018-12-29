@@ -31,9 +31,30 @@ def make_srpm(spec_file: str) -> str:
     return ''
 
 
-def build_with_mock(srpm: str, chroot_name: str)-> object:
-    print(colored('[MOCKBUILD]', 'green'), f' {srpm} for {chroot_name}')
-    return invoke('mock', ['-r', chroot_name, 'rebuild', srpm])
+def mock_init(chroot):
+    print(colored('[MOCKBUILD]', 'green'), f'Init chroot {chroot}')
+    invoke('mock', ['-r', chroot, '--init'])
+
+
+def mock_install(chroot, packages):
+    print(colored('[MOCKBUILD]', 'green'), f'Init chroot {chroot}')
+    mock_options = ['-r', chroot, '--install']
+    for package in listify(packages):
+        mock_options.append(package)
+    invoke('mock', mock_options)
+
+def mock_installdeps(chroot, srpm):
+    print(colored('[MOCKBUILD]', 'green'), f'Install deps in chroot {chroot} for {srpm}')
+    invoke('mock', ['-r', chroot, '--installdeps', srpm])
+
+
+def build_with_mock(srpm: str, chroot_name: str, additional_packages=None)-> object:
+    mock_init(chroot_name)
+    if additional_packages is not None:
+        mock_install(chroot_name, additional_packages)
+    mock_installdeps(chroot_name, srpm)
+    print(colored('[MOCKBUILD]', 'green'), f'Building {srpm} in {chroot_name}')
+    return invoke('mock', ['-r', chroot_name, '--no-clean', '--rebuild', srpm])
 
 
 def sign_rpm(rpm_files: str, gpg_key: str, passphrase: str) -> None:

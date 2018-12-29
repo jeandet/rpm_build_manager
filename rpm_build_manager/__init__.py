@@ -49,7 +49,7 @@ def clone_repo(url, dest):
     invoke('git', ['clone', url, dest])
 
 
-def build_package(srpm: str, chroot: str, rpmsign: bool, gpg_config: dict, destdir):
+def build_package(srpm: str, chroot: str, rpmsign: bool, gpg_config: dict, destdir, additional_packages=None):
     dist, version, arch = chroot.split('-')
     short_name = guess_distrib_short_name(dist)
     repo = f'{destdir}/{version}/{arch}/'
@@ -60,8 +60,9 @@ def build_package(srpm: str, chroot: str, rpmsign: bool, gpg_config: dict, destd
     if os.path.exists(f'''{repo}/{expected_rpm_name}'''):
         print(colored(f'[SKIP] {expected_rpm_name} already built','green'))
         return
-    r = build_with_mock(srpm, chroot)
-    rpm_list = glob.glob(f'/var/lib/mock/fedora-{version}-{arch}/result/*.rpm')
+    r = build_with_mock(srpm, chroot, additional_packages)
+    rpm_list = glob.glob(f'/var/lib/mock/fedora-{version}-{arch}/result/*.{arch}.rpm')
+    rpm_list += glob.glob(f'/var/lib/mock/fedora-{version}-{arch}/result/*.noarch.rpm')
     if rpmsign:
         sign_rpm(rpm_list, gpg_key, gpg_pass)
         sign_rpm(srpm, gpg_key, gpg_pass)
@@ -104,7 +105,14 @@ def main():
         for chroot in package_conf['chroots']:
             if chroot in _mock_chroots_:
                 _mock_chroots_[chroot].join()
-            _mock_chroots_[chroot] = Process(target=build_package, args=(srpm_file, chroot, package_conf['rpmsign'], gpg_config, destdir))
+            _mock_chroots_[chroot] = Process(target=build_package, args=(srpm_file,
+                                                                         chroot,
+                                                                         package_conf['rpmsign'],
+                                                                         gpg_config,
+                                                                         destdir,
+                                                                         package_conf.get('install', None)
+                                                                         )
+                                             )
             _mock_chroots_[chroot].start()
 
     for name,process in _mock_chroots_.items():
